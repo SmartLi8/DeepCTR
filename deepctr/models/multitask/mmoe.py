@@ -52,9 +52,9 @@ def MMOE(dnn_feature_columns, num_experts=3, expert_dnn_hidden_units=(256, 128),
         if task_type not in ['binary', 'regression']:
             raise ValueError("task must be binary or regression, {} is illegal".format(task_type))
 
-    features = build_input_features(dnn_feature_columns)
+    input_feats, features = build_input_features(dnn_feature_columns)
 
-    inputs_list = list(features.values())
+    inputs_list = list(input_feats.values())
 
     sparse_embedding_list, dense_value_list = input_from_feature_columns(features, dnn_feature_columns,
                                                                          l2_reg_embedding, seed)

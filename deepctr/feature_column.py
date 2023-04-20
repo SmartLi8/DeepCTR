@@ -15,14 +15,16 @@ DEFAULT_GROUP_NAME = "default_group"
 
 
 class SparseFeat(namedtuple('SparseFeat',
-                            ['name', 'vocabulary_size', 'embedding_dim', 'use_hash', 'vocabulary_path', 'dtype', 'embeddings_initializer',
+                            ['name', 'vocabulary_size', 'embedding_dim', 'use_hash', 'vocabulary_path', 'dtype',
+                             'embeddings_initializer',
                              'embedding_name',
-                             'group_name', 'trainable'])):
+                             'group_name', 'trainable', 'discretization'])):
     __slots__ = ()
 
-    def __new__(cls, name, vocabulary_size, embedding_dim=4, use_hash=False, vocabulary_path=None, dtype="int32", embeddings_initializer=None,
+    def __new__(cls, name, vocabulary_size, embedding_dim=4, use_hash=False, vocabulary_path=None, dtype="int32",
+                embeddings_initializer=None,
                 embedding_name=None,
-                group_name=DEFAULT_GROUP_NAME, trainable=True):
+                group_name=DEFAULT_GROUP_NAME, trainable=True, discretization=[]):
 
         if embedding_dim == "auto":
             embedding_dim = 6 * int(pow(vocabulary_size, 0.25))
@@ -32,9 +34,10 @@ class SparseFeat(namedtuple('SparseFeat',
         if embedding_name is None:
             embedding_name = name
 
-        return super(SparseFeat, cls).__new__(cls, name, vocabulary_size, embedding_dim, use_hash, vocabulary_path, dtype,
+        return super(SparseFeat, cls).__new__(cls, name, vocabulary_size, embedding_dim, use_hash, vocabulary_path,
+                                              dtype,
                                               embeddings_initializer,
-                                              embedding_name, group_name, trainable)
+                                              embedding_name, group_name, trainable, discretization)
 
     def __hash__(self):
         return self.name.__hash__()
@@ -88,6 +91,10 @@ class VarLenSparseFeat(namedtuple('VarLenSparseFeat',
     def trainable(self):
         return self.sparsefeat.trainable
 
+    @property
+    def discretization(self):
+        return self.sparsefeat.discretization
+
     def __hash__(self):
         return self.name.__hash__()
 
@@ -121,32 +128,42 @@ class DenseFeat(namedtuple('DenseFeat', ['name', 'dimension', 'dtype', 'transfor
 
 
 def get_feature_names(feature_columns):
-    features = build_input_features(feature_columns)
-    return list(features.keys())
+    input_features,_ = build_input_features(feature_columns)
+    return list(input_features.keys())
 
 
 def build_input_features(feature_columns, prefix=''):
     input_features = OrderedDict()
+    emb_features = OrderedDict()
     for fc in feature_columns:
         if isinstance(fc, SparseFeat):
-            input_features[fc.name] = Input(
-                shape=(1,), name=prefix + fc.name, dtype=fc.dtype)
+            input_features[fc.name] = Input(shape=(1,), name=prefix + fc.name, dtype=fc.dtype)
+            if fc.discretization != []:
+                emb_features[fc.name] = tf.keras.layers.Discretization(bin_boundaries=fc.discretization)(
+                    input_features[fc.name])
+            else:
+                emb_features[fc.name] = input_features[fc.name]
         elif isinstance(fc, DenseFeat):
             input_features[fc.name] = Input(
                 shape=(fc.dimension,), name=prefix + fc.name, dtype=fc.dtype)
+            emb_features[fc.name] = input_features[fc.name]
+
         elif isinstance(fc, VarLenSparseFeat):
+
             input_features[fc.name] = Input(shape=(fc.maxlen,), name=prefix + fc.name,
                                             dtype=fc.dtype)
+            emb_features[fc.name] = input_features[fc.name]
             if fc.weight_name is not None:
                 input_features[fc.weight_name] = Input(shape=(fc.maxlen, 1), name=prefix + fc.weight_name,
                                                        dtype="float32")
+                emb_features[fc.weight_name] = input_features[fc.name]
             if fc.length_name is not None:
                 input_features[fc.length_name] = Input((1,), name=prefix + fc.length_name, dtype='int32')
-
+                emb_features[fc.length_name] = input_features[fc.name]
         else:
             raise TypeError("Invalid feature column type,got", type(fc))
 
-    return input_features
+    return input_features, emb_features
 
 
 def get_linear_logit(features, feature_columns, units=1, use_bias=False, seed=1024, prefix='linear',
@@ -184,7 +201,7 @@ def get_linear_logit(features, feature_columns, units=1, use_bias=False, seed=10
         elif len(dense_input_list) > 0:
             dense_input = concat_func(dense_input_list)
             linear_logit = Linear(l2_reg, mode=1, use_bias=use_bias, seed=seed)(dense_input)
-        else:   #empty feature_columns
+        else:  # empty feature_columns
             return Lambda(lambda x: tf.constant([[0.0]]))(list(features.values())[0])
         linear_logit_list.append(linear_logit)
 
