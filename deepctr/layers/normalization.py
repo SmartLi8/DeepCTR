@@ -6,14 +6,14 @@ Author:
 
 """
 
-from tensorflow.python.keras import backend as K
-from tensorflow.python.keras.layers import Layer
+from tensorflow.keras import backend as K
+from tensorflow.keras.layers import Layer
 
-try:
-    from tensorflow.python.ops.init_ops import Zeros, Ones
-except ImportError:
-    from tensorflow.python.ops.init_ops_v2 import Zeros, Ones
-
+# try:
+#     from tensorflow.python.ops.init_ops import Zeros, Ones
+# except ImportError:
+#     from tensorflow.python.ops.init_ops_v2 import Zeros, Ones
+from tensorflow.compat.v1.keras.initializers import Zeros, Ones
 
 class LayerNormalization(Layer):
     def __init__(self, axis=-1, eps=1e-9, center=True,

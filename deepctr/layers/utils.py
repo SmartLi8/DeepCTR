@@ -6,21 +6,23 @@ Author:
 
 """
 import tensorflow as tf
-from tensorflow.python.keras import backend as K
-from tensorflow.python.keras.layers import Flatten, Layer, Add
-from tensorflow.python.ops.lookup_ops import TextFileInitializer
+from tensorflow.keras import backend as K
+from tensorflow.keras.layers import Flatten, Layer, Add
+from tensorflow.lookup import TextFileInitializer,StaticHashTable
 
-try:
-    from tensorflow.python.ops.init_ops import Zeros, glorot_normal_initializer as glorot_normal
-except ImportError:
-    from tensorflow.python.ops.init_ops_v2 import Zeros, glorot_normal
+# try:
+#     from tensorflow.python.ops.init_ops import Zeros, glorot_normal_initializer as glorot_normal
+# except ImportError:
+#     from tensorflow.python.ops.init_ops_v2 import Zeros, glorot_normal
+from tensorflow.compat.v1.keras.initializers import glorot_normal,glorot_uniform
+from tensorflow.compat.v1.keras.initializers import Zeros, Ones
 
-from tensorflow.python.keras.regularizers import l2
+from tensorflow.keras.regularizers import l2
 
-try:
-    from tensorflow.python.ops.lookup_ops import StaticHashTable
-except ImportError:
-    from tensorflow.python.ops.lookup_ops import HashTable as StaticHashTable
+# try:
+#     from tensorflow.python.ops.lookup_ops import
+# except ImportError:
+#     from tensorflow.python.ops.lookup_ops import HashTable as StaticHashTable
 
 
 class NoMask(Layer):

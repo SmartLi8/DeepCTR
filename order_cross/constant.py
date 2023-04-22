@@ -46,7 +46,7 @@ CSV_COLUMNS = ['unionid', 'sampletime', 'sampledate', 'label_1', 'label_2', 'lab
                'user_intelfly_detailpagecnt_today', 'user_intelfly_ordercnt_today', 'user_zhuanche_ordercnt_today',
                'user_sfcar_ordercnt_today', 'user_tour_ordercnt_today']
 EMB_DIM = 'auto'
-BATCH_SIZE = 2048
-EPOCH = 4
+BATCH_SIZE = 1024
+EPOCH = 2
 HDFS_LIST = [HDFS_PATH_TRAIN, HDFS_PATH_TEST, HDFS_PATH_PREDICT, HDFS_PATH_BUCKETBIN]
 LOCAL_LIST = [LOCAL_PATH_TRAIN, LOCAL_PATH_TEST, LOCAL_PATH_PREDICT, LOCAL_PATH_BUCKETBIN]

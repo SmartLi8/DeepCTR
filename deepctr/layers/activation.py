@@ -8,14 +8,15 @@ Author:
 
 import tensorflow as tf
 
-try:
-    from tensorflow.python.ops.init_ops import Zeros
-except ImportError:
-    from tensorflow.python.ops.init_ops_v2 import Zeros
-from tensorflow.python.keras.layers import Layer, Activation
+# try:
+#     from tensorflow.python.ops.init_ops import Zeros
+# except ImportError:
+#     from tensorflow.python.ops.init_ops_v2 import Zeros
+
+from tensorflow.keras.layers import Layer, Activation
 
 try:
-    from tensorflow.python.keras.layers import BatchNormalization
+    from tensorflow.keras.layers import BatchNormalization
 except ImportError:
     BatchNormalization = tf.keras.layers.BatchNormalization
 
@@ -51,8 +52,7 @@ class Dice(Layer):
     def build(self, input_shape):
         self.bn = BatchNormalization(
             axis=self.axis, epsilon=self.epsilon, center=False, scale=False)
-        self.alphas = self.add_weight(shape=(input_shape[-1],), initializer=Zeros(
-        ), dtype=tf.float32, name='dice_alpha')  # name='alpha_'+self.name
+        self.alphas = self.add_weight(shape=(input_shape[-1],), initializer=tf.keras.initializers.Zeros(), dtype=tf.float32, name='dice_alpha')  # name='alpha_'+self.name
         super(Dice, self).build(input_shape)  # Be sure to call this somewhere!
         self.uses_learning_phase = True
 

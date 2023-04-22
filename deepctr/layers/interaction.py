@@ -11,18 +11,20 @@ Authors:
 import itertools
 
 import tensorflow as tf
-from tensorflow.python.keras import backend as K
-from tensorflow.python.keras.backend import batch_dot
+from tensorflow.keras import backend as K
+from tensorflow.keras.backend import batch_dot
 
-try:
-    from tensorflow.python.ops.init_ops import Zeros, Ones, Constant, TruncatedNormal, \
-        glorot_normal_initializer as glorot_normal, \
-        glorot_uniform_initializer as glorot_uniform
-except ImportError:
-    from tensorflow.python.ops.init_ops_v2 import Zeros, Ones, Constant, TruncatedNormal, glorot_normal, glorot_uniform
+from tensorflow.compat.v1.keras.initializers import glorot_normal,glorot_uniform
 
-from tensorflow.python.keras.layers import Layer, MaxPooling2D, Conv2D, Dropout, Lambda, Dense, Flatten
-from tensorflow.python.keras.regularizers import l2
+# try:
+#     from tensorflow.keras.initializers import Zeros, Ones, Constant, TruncatedNormal, \
+#         glorot_normal_initializer as glorot_normal, \
+#         glorot_uniform_initializer as glorot_uniform
+# except ImportError:
+#     from tensorflow.python.ops.init_ops_v2 import Zeros, Ones, Constant, TruncatedNormal, glorot_normal, glorot_uniform
+
+from tensorflow.keras.layers import Layer, MaxPooling2D, Conv2D, Dropout, Lambda, Dense, Flatten
+from tensorflow.keras.regularizers import l2
 from tensorflow.python.layers import utils
 
 from .activation import activation_layer

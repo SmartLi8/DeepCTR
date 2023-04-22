@@ -3,8 +3,9 @@ from collections import namedtuple, OrderedDict
 from copy import copy
 from itertools import chain
 
-from tensorflow.python.keras.initializers import RandomNormal, Zeros
-from tensorflow.python.keras.layers import Input, Lambda
+from tensorflow.keras.initializers import RandomNormal, Zeros
+
+from tensorflow.keras.layers import Lambda
 
 from .inputs import create_embedding_matrix, embedding_lookup, get_dense_input, varlen_embedding_lookup, \
     get_varlen_pooling_list, mergeDict
@@ -137,28 +138,28 @@ def build_input_features(feature_columns, prefix=''):
     emb_features = OrderedDict()
     for fc in feature_columns:
         if isinstance(fc, SparseFeat):
-            input_features[fc.name] = Input(shape=(1,), name=prefix + fc.name, dtype=fc.dtype)
+            input_features[fc.name] = tf.keras.Input(shape=(1,), name=prefix + fc.name, dtype=fc.dtype)
             if fc.discretization != []:
                 emb_features[fc.name] = tf.keras.layers.Discretization(bin_boundaries=fc.discretization)(
                     input_features[fc.name])
             else:
                 emb_features[fc.name] = input_features[fc.name]
         elif isinstance(fc, DenseFeat):
-            input_features[fc.name] = Input(
+            input_features[fc.name] = tf.keras.Input(
                 shape=(fc.dimension,), name=prefix + fc.name, dtype=fc.dtype)
             emb_features[fc.name] = input_features[fc.name]
 
         elif isinstance(fc, VarLenSparseFeat):
 
-            input_features[fc.name] = Input(shape=(fc.maxlen,), name=prefix + fc.name,
+            input_features[fc.name] = tf.keras.Input(shape=(fc.maxlen,), name=prefix + fc.name,
                                             dtype=fc.dtype)
             emb_features[fc.name] = input_features[fc.name]
             if fc.weight_name is not None:
-                input_features[fc.weight_name] = Input(shape=(fc.maxlen, 1), name=prefix + fc.weight_name,
+                input_features[fc.weight_name] = tf.keras.Input(shape=(fc.maxlen, 1), name=prefix + fc.weight_name,
                                                        dtype="float32")
                 emb_features[fc.weight_name] = input_features[fc.name]
             if fc.length_name is not None:
-                input_features[fc.length_name] = Input((1,), name=prefix + fc.length_name, dtype='int32')
+                input_features[fc.length_name] = tf.keras.Input((1,), name=prefix + fc.length_name, dtype='int32')
                 emb_features[fc.length_name] = input_features[fc.name]
         else:
             raise TypeError("Invalid feature column type,got", type(fc))

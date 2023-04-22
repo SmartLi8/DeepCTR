@@ -10,8 +10,8 @@ from deepctr.models.multitask import MMOE
 from feat_preprocess import feat_config, build_input_fn_from_csv, build_model_input_feat
 from constant import *
 from tensorflow.python.framework.ops import disable_eager_execution
-disable_eager_execution()
-tf.compat.v1.experimental.output_all_intermediates(True)
+# disable_eager_execution()
+# tf.compat.v1.experimental.output_all_intermediates(True)
 # from pyspark.sql import SparkSession
 #
 # spark = SparkSession.builder.appName("order_cross") \
@@ -50,6 +50,7 @@ model_params = {
 }
 
 model = MMOE(**model_params)
+model.summary()
 callback1 = tf.keras.callbacks.EarlyStopping(monitor='val_loss', mode='min', patience=1)
 # opt = Adam(learning_rate=0.0003)
 model.compile(optimizer="adam", loss='binary_crossentropy', metrics=['AUC'])
